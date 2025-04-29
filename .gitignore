@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+spreadsheet-integration-001-*.json
+venv/
+.env

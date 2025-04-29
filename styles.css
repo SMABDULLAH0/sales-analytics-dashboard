@@ -1,0 +1,49 @@
+/* General background */
+body {
+    background-color: white;
+    color: black;
+}
+
+/* Sidebar */
+.sidebar .sidebar-content {
+    background-color: #f2e1f2 !important; /* Light purple background */
+}
+
+.sidebar .sidebar-content a {
+    color: #6a4fba !important; /* Purple text for links */
+}
+
+/* Main content */
+.main .block-container {
+    background-color: white !important;
+}
+
+/* Header text */
+h1, h2, h3, h4, h5, h6 {
+    color:  #6a4fba!important;  /* Light purple */
+}
+
+/* Button styling */
+.stButton button {
+    background-color: #6a4fba !important; /* Purple button */
+    color: white !important;
+}
+
+.stButton button:hover {
+    background-color: #5e3d9e !important; /* Darker purple hover */
+}
+
+/* Title in main content */
+h1 {
+    color: #6a4fba !important;
+}
+
+/* Change card background color */
+.css-ffhzg2 {
+    background-color: white !important;
+}
+
+/* Set plotly chart background color */
+.plotly-graph-div {
+    background-color: white !important;
+}
