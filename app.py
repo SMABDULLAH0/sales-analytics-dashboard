@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.express as px
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import os
 import json
 
 # --- Authentication ---
@@ -14,7 +13,7 @@ def check_credentials(username, password):
 st.set_page_config(page_title="Sales Analytics", layout="wide", initial_sidebar_state="expanded")
 
 # --- Load custom CSS ---
-with open("style.css") as f:
+with open("styles.css") as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 # --- Session Management ---
@@ -39,15 +38,15 @@ else:
     # --- Google Sheets Data Loader ---
     @st.cache_data(show_spinner=False)
     def load_data_from_sheet():
-        # Retrieve the credentials JSON string from environment variable
-        google_sheets_credentials = os.getenv('GOOGLE_SHEET_CREDENTIALS')
+        # Retrieve the credentials JSON string from Streamlit Secrets
+        google_sheets_credentials = st.secrets["google_sheets_credentials"]
 
         if google_sheets_credentials is None:
-            st.error("Google Sheets credentials are missing in environment variables!")
+            st.error("Google Sheets credentials are missing in Streamlit secrets!")
             return None
 
-        # Load the credentials from the JSON string
-        creds = json.loads(google_sheets_credentials)
+        # Load the credentials from Streamlit secrets
+        creds = google_sheets_credentials
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         credentials = ServiceAccountCredentials.from_json_keyfile_dict(creds, scope)
         client = gspread.authorize(credentials)
