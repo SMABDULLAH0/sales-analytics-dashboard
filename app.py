@@ -1,9 +1,10 @@
-# app.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import os
+import json
 
 # --- Authentication ---
 def check_credentials(username, password):
@@ -13,7 +14,7 @@ def check_credentials(username, password):
 st.set_page_config(page_title="Sales Analytics", layout="wide", initial_sidebar_state="expanded")
 
 # --- Load custom CSS ---
-with open("styles.css") as f:
+with open("style.css") as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 # --- Session Management ---
@@ -38,9 +39,18 @@ else:
     # --- Google Sheets Data Loader ---
     @st.cache_data(show_spinner=False)
     def load_data_from_sheet():
+        # Retrieve the credentials JSON string from environment variable
+        google_sheets_credentials = os.getenv('GOOGLE_SHEET_CREDENTIALS')
+
+        if google_sheets_credentials is None:
+            st.error("Google Sheets credentials are missing in environment variables!")
+            return None
+
+        # Load the credentials from the JSON string
+        creds = json.loads(google_sheets_credentials)
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name("spreadsheet-integration-001-b297d318df96.json", scope)
-        client = gspread.authorize(creds)
+        credentials = ServiceAccountCredentials.from_json_keyfile_dict(creds, scope)
+        client = gspread.authorize(credentials)
         sheet = client.open("data").sheet1  # Make sure your sheet is named "data"
         data = sheet.get_all_records()
         df = pd.DataFrame(data)
@@ -50,9 +60,11 @@ else:
     # --- Refresh Button ---
     st.sidebar.button("🔄 Refresh Data", on_click=lambda: [st.cache_data.clear(), st.rerun()])
 
-
     # --- Load Data ---
     df = load_data_from_sheet()
+
+    if df is None:
+        st.stop()
 
     # --- Preprocessing ---
     df["Month"] = df["ORDERDATE"].dt.to_period("M").astype(str)
@@ -65,7 +77,6 @@ else:
     st.sidebar.write("SWIFT")
     st.sidebar.write("🔊")
 
-    
     # --- KPIs ---
     total_orders = df["ORDERNUMBER"].nunique()
     completed_orders = df[df["STATUS"] == "Shipped"]["ORDERNUMBER"].nunique()
@@ -138,4 +149,3 @@ else:
     st.markdown("---")
     st.markdown("### View CSV Data")
     st.dataframe(df, use_container_width=True)
-
